@@ -3,13 +3,17 @@ package com.playstore.games.domain;
 import java.math.BigDecimal;
 import java.sql.Date;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -37,10 +41,15 @@ public class Game {
     private BigDecimal final_price;
     @Column(nullable = false, scale = 2)
     private BigDecimal discount_price;
+    @Column(nullable = true)
     private int discount;
     @Column(nullable = false)
     private Date release_date;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ECategory category;
+
+    @OneToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE }, fetch = FetchType.EAGER)
+    @JoinColumn(name = "image_id", referencedColumnName = "id")
+    private GameImage gameImage;
 }
