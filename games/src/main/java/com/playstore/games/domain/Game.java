@@ -3,6 +3,8 @@ package com.playstore.games.domain;
 import java.math.BigDecimal;
 import java.sql.Date;
 
+import org.hibernate.annotations.SQLDelete;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,6 +28,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "games")
+@SQLDelete(sql = "UPDATE games SET enabled=false WHERE id = ?")
 public class Game {
 
     @Id
@@ -48,6 +51,8 @@ public class Game {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ECategory category;
+    @Column(nullable = false)
+    private boolean enabled;
 
     @OneToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE }, fetch = FetchType.EAGER)
     @JoinColumn(name = "image_id", referencedColumnName = "id")
