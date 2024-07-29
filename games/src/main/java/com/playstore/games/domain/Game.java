@@ -2,6 +2,7 @@ package com.playstore.games.domain;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.time.LocalDate;
 
 import org.hibernate.annotations.SQLDelete;
 
@@ -47,7 +48,7 @@ public class Game {
     @Column(nullable = true)
     private int discount;
     @Column(nullable = false)
-    private Date release_date;
+    private LocalDate release_date;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ECategory category;
