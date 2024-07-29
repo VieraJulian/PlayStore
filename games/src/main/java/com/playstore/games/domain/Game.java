@@ -1,7 +1,6 @@
 package com.playstore.games.domain;
 
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.time.LocalDate;
 
 import org.hibernate.annotations.SQLDelete;
