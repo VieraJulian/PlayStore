@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import com.playstore.games.application.exception.GameNotFoundException;
 import com.playstore.games.domain.Game;
 import com.playstore.games.infrastructure.outputPort.IGameMethod;
 
@@ -28,8 +29,8 @@ public class GameRepositoryImpl implements IGameMethod {
     }
 
     @Override
-    public Optional<Game> findById(Long id) {
-        return gameRepository.findById(id);
+    public Game findById(Long id) throws GameNotFoundException {
+        return gameRepository.findById(id).orElseThrow(() -> new GameNotFoundException("Game not found"));
     }
 
     @Override

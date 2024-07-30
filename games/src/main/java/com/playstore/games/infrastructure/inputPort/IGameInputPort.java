@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.playstore.games.application.exception.GameNotFoundException;
 import com.playstore.games.infrastructure.dto.GameRequestDTO;
 import com.playstore.games.infrastructure.dto.GameResponseDTO;
 
@@ -13,10 +14,10 @@ public interface IGameInputPort {
 
     GameResponseDTO updateGame(GameRequestDTO game, MultipartFile file);
 
-    GameResponseDTO findGameById(Long id);
+    GameResponseDTO findGameById(Long id) throws GameNotFoundException;
 
     List<GameResponseDTO> findAllGames(int page, int size);
 
-    void deleteGameById(Long id);
+    String deleteGameById(Long id);
 
 }
