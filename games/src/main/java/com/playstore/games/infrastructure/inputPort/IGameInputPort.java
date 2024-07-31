@@ -4,13 +4,14 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.playstore.games.application.exception.CategoryNotFoundException;
 import com.playstore.games.application.exception.GameNotFoundException;
 import com.playstore.games.infrastructure.dto.GameRequestDTO;
 import com.playstore.games.infrastructure.dto.GameResponseDTO;
 
 public interface IGameInputPort {
 
-    GameResponseDTO createGame(GameRequestDTO game, MultipartFile file);
+    GameResponseDTO createGame(GameRequestDTO game, MultipartFile file) throws CategoryNotFoundException;
 
     GameResponseDTO updateGame(GameRequestDTO game, MultipartFile file);
 
