@@ -1,5 +1,7 @@
 package com.playstore.games.application;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +29,8 @@ public class GameUseCase implements IGameInputPort {
     @Override
     public GameResponseDTO createGame(GameRequestDTO game, MultipartFile file) throws CategoryNotFoundException {
         // Validar la imagen
-        // Validar el descuento
-        // Aplicar el descuento
+
+        BigDecimal finalPrice = game.getPrice();
 
         game.setCategory(game.getCategory().toUpperCase());
         ECategory gameCategory;
@@ -39,16 +41,36 @@ public class GameUseCase implements IGameInputPort {
             throw new CategoryNotFoundException("Category not found");
         }
 
+        if (game.getDiscount() > 0) {
+            BigDecimal price = game.getPrice();
+            BigDecimal discount = BigDecimal.valueOf(game.getDiscount());
+            BigDecimal discountAmount = price.multiply(discount).divide(BigDecimal.valueOf(100));
+            BigDecimal discountedPrice = price.subtract(discountAmount);
+            finalPrice = discountedPrice.setScale(2, RoundingMode.UNNECESSARY);
+        }
+
         Game newGame = Game.builder()
                 .title(game.getTitle())
                 .description(game.getDescription())
                 .original_price(game.getPrice())
-                .final_price(null)
-                .discount_price(null)
-                .discount(0)
+                .final_price(finalPrice)
+                .discount(game.getDiscount())
                 .release_date(LocalDate.now())
                 .category(gameCategory)
                 .enabled(true)
+                .build();
+
+        return GameResponseDTO.builder()
+                .id(newGame.getId())
+                .title(newGame.getTitle())
+                .description(newGame.getDescription())
+                .original_price(newGame.getOriginal_price())
+                .final_price(newGame.getFinal_price())
+                .discount(newGame.getDiscount())
+                .release_date(newGame.getRelease_date())
+                .category(newGame.getCategory().toString())
+                .enabled(newGame.isEnabled())
+                .image(null)
                 .build();
     }
 
@@ -77,7 +99,6 @@ public class GameUseCase implements IGameInputPort {
                 .description(game.getDescription())
                 .original_price(game.getOriginal_price())
                 .final_price(game.getFinal_price())
-                .discount_price(game.getDiscount_price())
                 .discount(game.getDiscount())
                 .release_date(game.getRelease_date())
                 .category(game.getCategory().toString())
@@ -107,7 +128,6 @@ public class GameUseCase implements IGameInputPort {
                     .description(game.getDescription())
                     .original_price(game.getOriginal_price())
                     .final_price(game.getFinal_price())
-                    .discount_price(game.getDiscount_price())
                     .discount(game.getDiscount())
                     .release_date(game.getRelease_date())
                     .category(game.getCategory().toString())

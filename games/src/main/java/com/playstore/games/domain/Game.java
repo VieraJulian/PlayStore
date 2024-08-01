@@ -45,8 +45,6 @@ public class Game {
     private BigDecimal original_price;
     @Column(nullable = false, scale = 2)
     private BigDecimal final_price;
-    @Column(nullable = false, scale = 2)
-    private BigDecimal discount_price;
     @Column(nullable = true)
     private int discount;
     @Column(nullable = false)

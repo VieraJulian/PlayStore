@@ -21,7 +21,6 @@ public class GameResponseDTO {
     private String description;
     private BigDecimal original_price;
     private BigDecimal final_price;
-    private BigDecimal discount_price;
     private int discount;
     private LocalDate release_date;
     private String category;
