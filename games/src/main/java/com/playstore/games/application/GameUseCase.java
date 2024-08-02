@@ -1,19 +1,24 @@
 package com.playstore.games.application;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.playstore.games.application.exception.CategoryNotFoundException;
 import com.playstore.games.application.exception.GameNotFoundException;
 import com.playstore.games.domain.ECategory;
 import com.playstore.games.domain.Game;
+import com.playstore.games.domain.GameImage;
 import com.playstore.games.infrastructure.dto.GameImageDTO;
 import com.playstore.games.infrastructure.dto.GameRequestDTO;
 import com.playstore.games.infrastructure.dto.GameResponseDTO;
@@ -26,9 +31,12 @@ public class GameUseCase implements IGameInputPort {
     @Autowired
     private IGameMethod gameMethod;
 
+    @Autowired
+    private Cloudinary cloudinary;
+
     @Override
-    public GameResponseDTO createGame(GameRequestDTO game, MultipartFile file) throws CategoryNotFoundException {
-        // Validar la imagen
+    public GameResponseDTO createGame(GameRequestDTO game, MultipartFile file)
+            throws CategoryNotFoundException, IOException {
 
         BigDecimal finalPrice = game.getPrice();
 
@@ -49,7 +57,14 @@ public class GameUseCase implements IGameInputPort {
             finalPrice = discountedPrice.setScale(2, RoundingMode.UNNECESSARY);
         }
 
-        Game newGame = Game.builder()
+        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+        String url = uploadResult.get("url").toString();
+
+        GameImage gameImage = GameImage.builder()
+                .image_url(url)
+                .build();
+
+        Game newGame = gameMethod.save(Game.builder()
                 .title(game.getTitle())
                 .description(game.getDescription())
                 .original_price(game.getPrice())
@@ -58,6 +73,12 @@ public class GameUseCase implements IGameInputPort {
                 .release_date(LocalDate.now())
                 .category(gameCategory)
                 .enabled(true)
+                .gameImage(gameImage)
+                .build());
+
+        GameImageDTO gameImageDTO = GameImageDTO.builder()
+                .id(newGame.getGameImage().getId())
+                .image_url(newGame.getGameImage().getImage_url())
                 .build();
 
         return GameResponseDTO.builder()
@@ -70,7 +91,7 @@ public class GameUseCase implements IGameInputPort {
                 .release_date(newGame.getRelease_date())
                 .category(newGame.getCategory().toString())
                 .enabled(newGame.isEnabled())
-                .image(null)
+                .image(gameImageDTO)
                 .build();
     }
 
