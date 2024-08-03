@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.ObjectUtils.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +41,8 @@ public class GameUseCase implements IGameInputPort {
             throws CategoryNotFoundException, IOException {
 
         BigDecimal finalPrice = game.getPrice();
+        GameImage gameImage = null;
+        GameImageDTO gameImageDTO = null;
 
         game.setCategory(game.getCategory().toUpperCase());
         ECategory gameCategory;
@@ -54,15 +58,29 @@ public class GameUseCase implements IGameInputPort {
             BigDecimal discount = BigDecimal.valueOf(game.getDiscount());
             BigDecimal discountAmount = price.multiply(discount).divide(BigDecimal.valueOf(100));
             BigDecimal discountedPrice = price.subtract(discountAmount);
-            finalPrice = discountedPrice.setScale(2, RoundingMode.UNNECESSARY);
+            finalPrice = discountedPrice.setScale(2, RoundingMode.HALF_EVEN);
         }
 
-        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
-        String url = uploadResult.get("url").toString();
+        if (file != null && file.isEmpty() != true) {
 
-        GameImage gameImage = GameImage.builder()
-                .image_url(url)
-                .build();
+            if (file.getSize() > 5000000) {
+                throw new IllegalArgumentException("The image exceeds 5 MB");
+            }
+
+            String originalFilename = file.getOriginalFilename();
+            String extension = FilenameUtils.getExtension(originalFilename);
+
+            if (!extension.equals("jpg") && !extension.equals("jpeg") && !extension.equals("png")) {
+                throw new IllegalArgumentException("The allowed extensions are ‘.jpg’, ‘.jpe’, ‘.png’");
+            }
+
+            Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+            String url = uploadResult.get("url").toString();
+
+            gameImage = GameImage.builder()
+                    .image_url(url)
+                    .build();
+        }
 
         Game newGame = gameMethod.save(Game.builder()
                 .title(game.getTitle())
@@ -76,10 +94,12 @@ public class GameUseCase implements IGameInputPort {
                 .gameImage(gameImage)
                 .build());
 
-        GameImageDTO gameImageDTO = GameImageDTO.builder()
-                .id(newGame.getGameImage().getId())
-                .image_url(newGame.getGameImage().getImage_url())
-                .build();
+        if (gameImage != null) {
+            gameImageDTO = GameImageDTO.builder()
+                    .id(newGame.getGameImage().getId())
+                    .image_url(newGame.getGameImage().getImage_url())
+                    .build();
+        }
 
         return GameResponseDTO.builder()
                 .id(newGame.getId())

@@ -27,7 +27,7 @@ public class GameController {
 
     @PostMapping("/create")
     public ResponseEntity<GameResponseDTO> createGame(@ModelAttribute GameRequestDTO game,
-            @RequestParam("file") MultipartFile file) {
+            @RequestParam(value = "file", required = false) MultipartFile file) {
         try {
             GameResponseDTO gameResponseDTO = gameInputPort.createGame(game, file);
             return new ResponseEntity<>(gameResponseDTO, HttpStatus.CREATED);
