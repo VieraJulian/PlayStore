@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Locale.Category;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ObjectUtils.Null;
@@ -18,6 +19,8 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.playstore.games.application.exception.CategoryNotFoundException;
 import com.playstore.games.application.exception.GameNotFoundException;
+import com.playstore.games.application.utils.CalculateFinalPrice;
+import com.playstore.games.application.utils.CategoryUtils;
 import com.playstore.games.domain.ECategory;
 import com.playstore.games.domain.Game;
 import com.playstore.games.domain.GameImage;
@@ -40,26 +43,9 @@ public class GameUseCase implements IGameInputPort {
     public GameResponseDTO createGame(GameRequestDTO game, MultipartFile file)
             throws CategoryNotFoundException, IOException {
 
-        BigDecimal finalPrice = game.getPrice();
+        BigDecimal finalPrice = CalculateFinalPrice.calculateFinalPrice(game.getPrice(), game.getDiscount());
+        ECategory gameCategory = CategoryUtils.setCategory(game.getCategory());
         GameImage gameImage = null;
-        GameImageDTO gameImageDTO = null;
-
-        game.setCategory(game.getCategory().toUpperCase());
-        ECategory gameCategory;
-
-        try {
-            gameCategory = ECategory.valueOf(game.getCategory());
-        } catch (Exception e) {
-            throw new CategoryNotFoundException("Category not found");
-        }
-
-        if (game.getDiscount() > 0) {
-            BigDecimal price = game.getPrice();
-            BigDecimal discount = BigDecimal.valueOf(game.getDiscount());
-            BigDecimal discountAmount = price.multiply(discount).divide(BigDecimal.valueOf(100));
-            BigDecimal discountedPrice = price.subtract(discountAmount);
-            finalPrice = discountedPrice.setScale(2, RoundingMode.HALF_EVEN);
-        }
 
         if (file != null && file.isEmpty() != true) {
 
@@ -94,12 +80,10 @@ public class GameUseCase implements IGameInputPort {
                 .gameImage(gameImage)
                 .build());
 
-        if (gameImage != null) {
-            gameImageDTO = GameImageDTO.builder()
-                    .id(newGame.getGameImage().getId())
-                    .image_url(newGame.getGameImage().getImage_url())
-                    .build();
-        }
+        GameImageDTO gameImageDTO = (gameImage != null) ? GameImageDTO.builder()
+                .id(newGame.getGameImage().getId())
+                .image_url(newGame.getGameImage().getImage_url())
+                .build() : null;
 
         return GameResponseDTO.builder()
                 .id(newGame.getId())
