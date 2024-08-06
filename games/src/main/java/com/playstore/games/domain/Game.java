@@ -30,7 +30,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "games")
-@SQLDelete(sql = "UPDATE games SET enabled=false WHERE id = ?")
+@SQLDelete(sql = "UPDATE games SET enabled = false WHERE id = ?")
 @Builder
 public class Game {
 
@@ -55,7 +55,7 @@ public class Game {
     @Column(nullable = false)
     private boolean enabled;
 
-    @OneToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE }, fetch = FetchType.EAGER)
+    @OneToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER)
     @JoinColumn(name = "image_id", referencedColumnName = "id")
     private GameImage gameImage;
 }
