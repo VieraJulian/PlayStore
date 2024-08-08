@@ -14,7 +14,8 @@ public interface IGameInputPort {
 
     GameResponseDTO createGame(GameRequestDTO game, MultipartFile file) throws CategoryNotFoundException, IOException;
 
-    GameResponseDTO updateGame(GameRequestDTO game, MultipartFile file);
+    GameResponseDTO updateGame(Long id, GameRequestDTO game, MultipartFile file)
+            throws GameNotFoundException, CategoryNotFoundException, IOException;
 
     GameResponseDTO findGameById(Long id) throws GameNotFoundException;
 

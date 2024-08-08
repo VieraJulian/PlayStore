@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -63,6 +64,19 @@ public class GameController {
 
         } catch (Exception e) {
             logger.error("Error creating Game", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<GameResponseDTO> updateGame(@PathVariable Long id, @ModelAttribute GameRequestDTO game,
+            @RequestParam(value = "file", required = false) MultipartFile file) {
+        try {
+            GameResponseDTO gameResponseDTO = gameInputPort.updateGame(id, game, file);
+            return new ResponseEntity<>(gameResponseDTO, HttpStatus.OK);
+
+        } catch (Exception e) {
+            logger.error("Error editing Game", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
