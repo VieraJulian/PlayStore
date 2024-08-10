@@ -25,6 +25,7 @@ import com.playstore.games.infrastructure.dto.GameImageDTO;
 import com.playstore.games.infrastructure.dto.GameRequestDTO;
 import com.playstore.games.infrastructure.dto.GameResponseDTO;
 import com.playstore.games.infrastructure.inputPort.IGameInputPort;
+import com.playstore.games.infrastructure.outputPort.IGameImageMethod;
 import com.playstore.games.infrastructure.outputPort.IGameMethod;
 
 @Service
@@ -32,6 +33,9 @@ public class GameUseCase implements IGameInputPort {
 
     @Autowired
     private IGameMethod gameMethod;
+
+    @Autowired
+    private IGameImageMethod gameImageMethod;
 
     @Autowired
     private Cloudinary cloudinary;
@@ -100,6 +104,7 @@ public class GameUseCase implements IGameInputPort {
     public GameResponseDTO updateGame(Long id, GameRequestDTO game, MultipartFile file)
             throws GameNotFoundException, CategoryNotFoundException, IOException {
         Game gameDB = gameMethod.findById(id);
+        Long imgId = gameDB.getGameImage().getId();
 
         BigDecimal finalPrice = CalculateFinalPrice.calculateFinalPrice(game.getPrice(), game.getDiscount());
         ECategory eCategory = CategoryUtils.setCategory(game.getCategory());
@@ -135,6 +140,7 @@ public class GameUseCase implements IGameInputPort {
         gameDB.setCategory(eCategory);
         if (gameImage != null) {
             gameDB.setGameImage(gameImage);
+            gameImageMethod.deleteById(imgId);
         }
 
         Game gameUpdated = gameMethod.save(gameDB);
