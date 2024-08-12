@@ -19,6 +19,7 @@ import com.playstore.games.application.exception.CategoryNotFoundException;
 import com.playstore.games.application.exception.GameNotFoundException;
 import com.playstore.games.application.utils.CalculateFinalPrice;
 import com.playstore.games.application.utils.CategoryUtils;
+import com.playstore.games.application.utils.GameUtils;
 import com.playstore.games.domain.ECategory;
 import com.playstore.games.domain.Game;
 import com.playstore.games.domain.GameImage;
@@ -169,14 +170,6 @@ public class GameUseCase implements IGameInputPort {
     @Override
     public GameResponseDTO findGameById(Long id) throws GameNotFoundException {
         Game game = gameMethod.findById(id);
-        GameImageDTO gameImageDTO = null;
-
-        if (game.getGameImage() != null) {
-            gameImageDTO = GameImageDTO.builder()
-                    .id(game.getGameImage().getId())
-                    .image_url(game.getGameImage().getImage_url())
-                    .build();
-        }
 
         return GameResponseDTO.builder()
                 .id(game.getId())
@@ -188,7 +181,7 @@ public class GameUseCase implements IGameInputPort {
                 .release_date(game.getRelease_date())
                 .category(game.getCategory().toString())
                 .enabled(game.isEnabled())
-                .image(gameImageDTO)
+                .image(GameUtils.convertToGameImageDTO(game.getGameImage()))
                 .build();
     }
 
@@ -196,10 +189,6 @@ public class GameUseCase implements IGameInputPort {
     public List<GameResponseDTO> findAllGames(int page, int size) {
         return gameMethod.findAll(page, size).stream()
                 .map(game -> {
-                    GameImageDTO gameImageDTO = (game.getGameImage() != null) ? GameImageDTO.builder()
-                            .id(game.getGameImage().getId())
-                            .image_url(game.getGameImage().getImage_url())
-                            .build() : null;
 
                     return GameResponseDTO.builder()
                             .id(game.getId())
@@ -211,7 +200,7 @@ public class GameUseCase implements IGameInputPort {
                             .release_date(game.getRelease_date())
                             .category(game.getCategory().toString())
                             .enabled(game.isEnabled())
-                            .image(gameImageDTO)
+                            .image(GameUtils.convertToGameImageDTO(game.getGameImage()))
                             .build();
 
                 }).collect(Collectors.toList());
