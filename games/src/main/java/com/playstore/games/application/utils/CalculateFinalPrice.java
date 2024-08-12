@@ -13,6 +13,5 @@ public class CalculateFinalPrice {
         }
 
         return price;
-
     }
 }

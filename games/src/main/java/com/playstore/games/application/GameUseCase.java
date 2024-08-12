@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -193,35 +194,27 @@ public class GameUseCase implements IGameInputPort {
 
     @Override
     public List<GameResponseDTO> findAllGames(int page, int size) {
-        List<Game> gamesListDB = gameMethod.findAll(page, size);
-        List<GameResponseDTO> gamesList = new ArrayList<>();
+        return gameMethod.findAll(page, size).stream()
+                .map(game -> {
+                    GameImageDTO gameImageDTO = (game.getGameImage() != null) ? GameImageDTO.builder()
+                            .id(game.getGameImage().getId())
+                            .image_url(game.getGameImage().getImage_url())
+                            .build() : null;
 
-        gamesListDB.forEach((game) -> {
-            GameImageDTO gameImageDTO = null;
+                    return GameResponseDTO.builder()
+                            .id(game.getId())
+                            .title(game.getTitle())
+                            .description(game.getDescription())
+                            .original_price(game.getOriginal_price())
+                            .final_price(game.getFinal_price())
+                            .discount(game.getDiscount())
+                            .release_date(game.getRelease_date())
+                            .category(game.getCategory().toString())
+                            .enabled(game.isEnabled())
+                            .image(gameImageDTO)
+                            .build();
 
-            if (game.getGameImage() != null) {
-                gameImageDTO = GameImageDTO.builder()
-                        .id(game.getGameImage().getId())
-                        .image_url(game.getGameImage().getImage_url())
-                        .build();
-            }
-
-            gamesList.add(GameResponseDTO.builder()
-                    .id(game.getId())
-                    .title(game.getTitle())
-                    .description(game.getDescription())
-                    .original_price(game.getOriginal_price())
-                    .final_price(game.getFinal_price())
-                    .discount(game.getDiscount())
-                    .release_date(game.getRelease_date())
-                    .category(game.getCategory().toString())
-                    .enabled(game.isEnabled())
-                    .image(gameImageDTO)
-                    .build());
-        });
-
-        return gamesList;
-
+                }).collect(Collectors.toList());
     }
 
     @Override
