@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.playstore.users.application.exception.UserNotFoundException;
 import com.playstore.users.domain.UserEntity;
 import com.playstore.users.infrastructure.outputPort.IUserMethods;
 
@@ -20,8 +21,8 @@ public class UserRepositoryImpl implements IUserMethods {
     }
 
     @Override
-    public Optional<UserEntity> findById(Long id) {
-        return userRepository.findById(id);
+    public UserEntity findById(Long id) throws UserNotFoundException {
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found."));
     }
 
     @Override
