@@ -3,7 +3,7 @@ package com.playstore.users.application;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
+
 import org.springframework.stereotype.Service;
 
 import com.playstore.users.application.exception.RoleNotFoundException;
@@ -63,9 +63,29 @@ public class UserUseCase implements IUserInputport {
     }
 
     @Override
-    public UserResponseDTO update(Long id, UserRequestUpdateDTO user) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'update'");
+    public UserResponseDTO update(Long id, UserRequestUpdateDTO user) throws UserNotFoundException {
+        UserEntity userDB = userMethods.findById(id);
+
+        if (userDB == null) {
+            return null;
+        }
+
+        userDB.setEmail(user.email());
+
+        if (!user.username().isEmpty() && userMethods.findUserEntityByUsername(user.username()).isEmpty()) {
+            userDB.setUsername(user.username());
+        }
+
+        UserEntity userUpdated = userMethods.save(userDB);
+
+        return UserResponseDTO.builder()
+                .id(userUpdated.getId())
+                .username(userUpdated.getUsername())
+                .email(userUpdated.getEmail())
+                .enabled(userUpdated.isEnabled())
+                .role(userUpdated.getRole())
+                .build();
+
     }
 
     @Override

@@ -10,7 +10,7 @@ public interface IUserInputport {
 
     UserResponseDTO save(UserRequestDTO user) throws RoleNotFoundException;
 
-    UserResponseDTO update(Long id, UserRequestUpdateDTO user);
+    UserResponseDTO update(Long id, UserRequestUpdateDTO user) throws UserNotFoundException;
 
     UserResponseDTO findById(Long id) throws UserNotFoundException;
 
