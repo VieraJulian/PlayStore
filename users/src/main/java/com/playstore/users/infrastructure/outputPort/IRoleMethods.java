@@ -1,11 +1,12 @@
 package com.playstore.users.infrastructure.outputPort;
 
-import com.playstore.users.application.exception.RoleNotFoundException;
+import java.util.Optional;
+
 import com.playstore.users.domain.Role;
 
 public interface IRoleMethods {
 
-    Role findById(Long id) throws RoleNotFoundException;
+    Optional<Role> findById(Long id);
 
     Role save(Role role);
 }

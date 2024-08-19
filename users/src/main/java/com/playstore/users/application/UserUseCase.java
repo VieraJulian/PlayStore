@@ -1,13 +1,12 @@
 package com.playstore.users.application;
 
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
 
 import com.playstore.users.application.exception.RoleNotFoundException;
 import com.playstore.users.application.exception.UserNotFoundException;
+import com.playstore.users.application.exception.UsernameExistsException;
 import com.playstore.users.domain.Role;
 import com.playstore.users.domain.UserEntity;
 import com.playstore.users.infrastructure.dto.UserRequestDTO;
@@ -27,53 +26,42 @@ public class UserUseCase implements IUserInputport {
     private IRoleMethods roleMethods;
 
     @Override
-    public UserResponseDTO save(UserRequestDTO user) throws RoleNotFoundException {
+    public UserResponseDTO save(UserRequestDTO user) throws RoleNotFoundException, UsernameExistsException {
 
-        Optional<UserEntity> username = userMethods.findUserEntityByUsername(user.getUsername());
+        userMethods.findUserEntityByUsername(user.getUsername())
+                .orElseThrow(() -> new UsernameExistsException("Username exists"));
 
-        if (username.isPresent()) {
-            return null;
-        }
+        Role role = roleMethods.findById(user.getRole().getId())
+                .orElseThrow(() -> new RoleNotFoundException("Role not found"));
 
-        Role role = roleMethods.findById(user.getRole().getId());
+        UserEntity userInfo = UserEntity.builder()
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .enabled(true)
+                .role(role)
+                .build();
 
-        if (role != null) {
+        UserEntity newUser = userMethods.save(userInfo);
 
-            UserEntity userInfo = UserEntity.builder()
-                    .username(user.getUsername())
-                    .email(user.getEmail())
-                    .password(user.getPassword())
-                    .enabled(true)
-                    .role(role)
-                    .build();
-
-            UserEntity newUser = userMethods.save(userInfo);
-
-            return UserResponseDTO.builder()
-                    .id(newUser.getId())
-                    .username(newUser.getUsername())
-                    .email(newUser.getEmail())
-                    .enabled(newUser.isEnabled())
-                    .role(newUser.getRole())
-                    .build();
-        }
-
-        return null;
+        return UserResponseDTO.builder()
+                .id(newUser.getId())
+                .username(newUser.getUsername())
+                .email(newUser.getEmail())
+                .enabled(newUser.isEnabled())
+                .role(newUser.getRole())
+                .build();
 
     }
 
     @Override
     public UserResponseDTO update(Long id, UserRequestUpdateDTO user) throws UserNotFoundException {
-        UserEntity userDB = userMethods.findById(id);
+        UserEntity userDB = userMethods.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        if (userDB == null) {
-            return null;
-        }
+        userDB.setEmail(user.getEmail());
 
-        userDB.setEmail(user.email());
-
-        if (!user.username().isEmpty() && userMethods.findUserEntityByUsername(user.username()).isEmpty()) {
-            userDB.setUsername(user.username());
+        if (user.getUsername() != null && userMethods.findUserEntityByUsername(user.getUsername()).isEmpty()) {
+            userDB.setUsername(user.getUsername());
         }
 
         UserEntity userUpdated = userMethods.save(userDB);
@@ -90,7 +78,7 @@ public class UserUseCase implements IUserInputport {
 
     @Override
     public UserResponseDTO findById(Long id) throws UserNotFoundException {
-        UserEntity userDB = userMethods.findById(id);
+        UserEntity userDB = userMethods.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
 
         return UserResponseDTO.builder()
                 .id(userDB.getId())

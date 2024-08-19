@@ -1,7 +1,13 @@
 package com.playstore.users.infrastructure.dto;
 
 import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 @Builder
-public record UserRequestUpdateDTO(String username, String email) {
+public class UserRequestUpdateDTO {
+    String username;
+    String email;
 }

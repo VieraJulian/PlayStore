@@ -1,9 +1,10 @@
 package com.playstore.users.infrastructure.outputAdapter;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.playstore.users.application.exception.RoleNotFoundException;
 import com.playstore.users.domain.Role;
 import com.playstore.users.infrastructure.outputPort.IRoleMethods;
 
@@ -19,8 +20,8 @@ public class RoleRepository implements IRoleMethods {
     }
 
     @Override
-    public Role findById(Long id) throws RoleNotFoundException {
-        return roleRepository.findById(id).orElseThrow(() -> new RoleNotFoundException("Role not found"));
+    public Optional<Role> findById(Long id) {
+        return roleRepository.findById(id);
     }
 
 }
