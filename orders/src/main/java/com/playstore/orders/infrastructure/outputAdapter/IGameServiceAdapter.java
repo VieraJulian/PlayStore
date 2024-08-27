@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import com.playstore.orders.infrastructure.dto.GameDTO;
 import com.playstore.orders.infrastructure.outputPort.IGameServicePort;
 
-@FeignClient(name = "game-service", url = "http://localhost:8080")
+@FeignClient(name = "games", url = "http://localhost:8080")
 public interface IGameServiceAdapter extends IGameServicePort {
 
     @Override

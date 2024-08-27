@@ -5,20 +5,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.math.BigDecimal;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class OrderItemDTO {
+public class GameImage {
 
     private Long id;
-    private String title;
-    private BigDecimal original_price;
-    private BigDecimal final_price;
-    private int discount;
-    private int quantity;
-    private GameImage gameImage;
+    private String image_url;
 }

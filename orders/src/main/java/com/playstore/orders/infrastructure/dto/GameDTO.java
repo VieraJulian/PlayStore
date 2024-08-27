@@ -24,11 +24,5 @@ public class GameDTO {
     private int discount;
     private LocalDate release_date;
     private String category;
-    private GameImageDTO gameImageDTO;
-}
-
-class GameImageDTO {
-
-    private Long id;
-    private String image_url;
+    private GameImage gameImage;
 }

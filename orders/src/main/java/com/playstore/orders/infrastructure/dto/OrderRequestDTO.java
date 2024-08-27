@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.util.List;
 
 @Getter
 @Setter
@@ -11,7 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class OrderRequestDTO {
 
-    private Long game_id;
-    private int quantity;
+    private Long user_id;
+    private List<GameRequestDTO> listGames;
 
 }
