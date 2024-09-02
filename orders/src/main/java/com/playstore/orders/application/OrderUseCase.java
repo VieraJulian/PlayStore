@@ -1,5 +1,7 @@
 package com.playstore.orders.application;
 
+import com.playstore.orders.application.exception.OrderNotFoundException;
+import com.playstore.orders.infrastructure.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -7,12 +9,6 @@ import com.playstore.orders.application.exception.GameNotFoundException;
 import com.playstore.orders.application.exception.UserNotFoundException;
 import com.playstore.orders.domain.Order;
 import com.playstore.orders.domain.OrderItem;
-import com.playstore.orders.infrastructure.dto.GameDTO;
-import com.playstore.orders.infrastructure.dto.GameRequestDTO;
-import com.playstore.orders.infrastructure.dto.OrderDTO;
-import com.playstore.orders.infrastructure.dto.OrderItemDTO;
-import com.playstore.orders.infrastructure.dto.OrderRequestDTO;
-import com.playstore.orders.infrastructure.dto.UserDTO;
 import com.playstore.orders.infrastructure.inputPort.IOrderInputPort;
 import com.playstore.orders.infrastructure.outputPort.IGameServicePort;
 import com.playstore.orders.infrastructure.outputPort.IOrderItemMethod;
@@ -40,9 +36,36 @@ public class OrderUseCase implements IOrderInputPort {
     private IGameServicePort gameServ;
 
     @Override
-    public OrderDTO findOrderById(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findOrderById'");
+    public OrderDTO findOrderById(Long id) throws OrderNotFoundException {
+
+        return orderMethod.findById(id).map(order -> {
+            List<OrderItemDTO> orderItemDTOS = new ArrayList<>();
+
+            order.getOrdersItems().forEach( orderItem -> {
+                GameDTO gameDTO = gameServ.getGame(orderItem.getGame_id());
+
+                orderItemDTOS.add(OrderItemDTO.builder()
+                                .id(orderItem.getId())
+                                .title(gameDTO.getTitle())
+                                .original_price(gameDTO.getOriginal_price())
+                                .final_price(gameDTO.getFinal_price())
+                                .discount(gameDTO.getDiscount())
+                                .quantity(gameDTO.getDiscount())
+                                .gameImage(gameDTO.getImage())
+
+                        .build());
+            });
+
+            return OrderDTO.builder()
+                    .id(order.getId())
+                    .user_id(order.getUser_id())
+                    .final_price(order.getFinal_price())
+                    .date_purchase(order.getDate_purchase())
+                    .code_operation(order.getCode_operation())
+                    .enabled(order.isEnabled())
+                    .ordersItems(orderItemDTOS)
+                    .build();
+        }).orElseThrow(() -> new OrderNotFoundException("Order not found"));
     }
 
     @Override
