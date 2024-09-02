@@ -1,5 +1,7 @@
 package com.playstore.users.infrastructure.inputAdapter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,12 +26,15 @@ public class UserController {
     @Autowired
     private IUserInputport userInputport;
 
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+
     @PostMapping("/create")
     public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO userRequestDTO) {
         try {
             UserResponseDTO userResponseDTO = userInputport.save(userRequestDTO);
             return new ResponseEntity<>(userResponseDTO, HttpStatus.CREATED);
         } catch (Exception e) {
+            logger.error("Error creating User", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -41,6 +46,7 @@ public class UserController {
             UserResponseDTO userResponseDTO = userInputport.update(id, updateDTO);
             return new ResponseEntity<>(userResponseDTO, HttpStatus.OK);
         } catch (Exception e) {
+            logger.error("Error editing User", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -51,6 +57,7 @@ public class UserController {
             UserResponseDTO userResponseDTO = userInputport.findById(id);
             return new ResponseEntity<>(userResponseDTO, HttpStatus.OK);
         } catch (Exception e) {
+            logger.error("Error getting User", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -61,6 +68,7 @@ public class UserController {
             String msj = userInputport.deleteById(id);
             return new ResponseEntity<>(msj, HttpStatus.OK);
         } catch (Exception e) {
+            logger.error("Error editing User", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

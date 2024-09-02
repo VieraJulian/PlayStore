@@ -71,7 +71,7 @@ public class OrderUseCase implements IOrderInputPort {
             }
 
             priceFinal = priceFinal.add(game.getFinal_price().multiply(BigDecimal.valueOf(g.getQuantity())));
-            System.out.println(game.getGameImage().getImage_url());
+
             ordersItems.add(OrderItemDTO.builder()
                     .id(game.getId())
                     .title(game.getTitle())
@@ -79,7 +79,7 @@ public class OrderUseCase implements IOrderInputPort {
                     .final_price(game.getFinal_price())
                     .discount(game.getDiscount())
                     .quantity(g.getQuantity())
-                    .gameImage(game.getGameImage())
+                    .gameImage(game.getImage())
                     .build());
         }
 

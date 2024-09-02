@@ -28,8 +28,9 @@ public class UserUseCase implements IUserInputport {
     @Override
     public UserResponseDTO save(UserRequestDTO user) throws RoleNotFoundException, UsernameExistsException {
 
-        userMethods.findUserEntityByUsername(user.getUsername())
-                .orElseThrow(() -> new UsernameExistsException("Username exists"));
+        if (userMethods.findUserEntityByUsername(user.getUsername()).isPresent()) {
+            throw new UsernameExistsException("Username already exists");
+        }
 
         Role role = roleMethods.findById(user.getRole().getId())
                 .orElseThrow(() -> new RoleNotFoundException("Role not found"));
