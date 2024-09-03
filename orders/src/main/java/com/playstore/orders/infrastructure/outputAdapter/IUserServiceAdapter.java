@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import com.playstore.orders.infrastructure.dto.UserDTO;
 import com.playstore.orders.infrastructure.outputPort.IUserServicePort;
 
-@FeignClient(name = "users", url = "http://localhost:8081")
+@FeignClient(name = "users")
 public interface IUserServiceAdapter extends IUserServicePort {
 
     @Override
