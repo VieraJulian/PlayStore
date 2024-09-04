@@ -69,9 +69,36 @@ public class OrderUseCase implements IOrderInputPort {
     }
 
     @Override
-    public OrderDTO findOrderByCode(String code) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findOrderByCode'");
+    public OrderDTO findOrderByCode(String codeOp) throws OrderNotFoundException {
+        return orderMethod.findByCodeOperation(codeOp).map(order -> {
+            List<OrderItemDTO> orderItemDTOS = new ArrayList<>();
+
+            order.getOrdersItems().forEach( orderItem -> {
+                GameDTO gameDTO = gameServ.getGame(orderItem.getGame_id());
+
+                orderItemDTOS.add(OrderItemDTO.builder()
+                        .id(orderItem.getId())
+                        .title(gameDTO.getTitle())
+                        .original_price(gameDTO.getOriginal_price())
+                        .final_price(gameDTO.getFinal_price())
+                        .discount(gameDTO.getDiscount())
+                        .quantity(gameDTO.getDiscount())
+                        .gameImage(gameDTO.getImage())
+
+                        .build());
+            });
+
+            return OrderDTO.builder()
+                    .id(order.getId())
+                    .user_id(order.getUser_id())
+                    .final_price(order.getFinal_price())
+                    .date_purchase(order.getDate_purchase())
+                    .code_operation(order.getCode_operation())
+                    .enabled(order.isEnabled())
+                    .ordersItems(orderItemDTOS)
+                    .build();
+
+        }).orElseThrow(() -> new OrderNotFoundException("Order not found"));
     }
 
     @Override

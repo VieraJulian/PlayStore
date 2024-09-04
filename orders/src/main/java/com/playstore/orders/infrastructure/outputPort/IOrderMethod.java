@@ -12,4 +12,6 @@ public interface IOrderMethod {
     Optional<Order> findById(Long id);
 
     void deleteById(Long id);
+
+    Optional<Order> findByCodeOperation(String codeOp);
 }

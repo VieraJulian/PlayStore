@@ -43,4 +43,27 @@ public class OrderController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/code/{codeOp}")
+    public ResponseEntity<OrderDTO> getOrderByCodeOp(@PathVariable String codeOp) {
+        try {
+            OrderDTO order = orderInputPort.findOrderByCode(codeOp);
+            return new ResponseEntity<>(order, HttpStatus.OK);
+
+        } catch (Exception e) {
+            logger.error("Error getting order", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteOrderById(@PathVariable Long id) {
+        try {
+            String msj = orderInputPort.deleteOrderById(id);
+            return new ResponseEntity<>(msj, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error deleting order", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

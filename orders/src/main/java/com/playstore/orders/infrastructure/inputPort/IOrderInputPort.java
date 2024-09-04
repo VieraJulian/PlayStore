@@ -10,7 +10,7 @@ public interface IOrderInputPort {
 
     OrderDTO findOrderById(Long id) throws OrderNotFoundException;
 
-    OrderDTO findOrderByCode(String code);
+    OrderDTO findOrderByCode(String code) throws OrderNotFoundException;
 
     OrderDTO createOrder(OrderRequestDTO orderReq) throws UserNotFoundException, GameNotFoundException;
 

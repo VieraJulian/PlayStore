@@ -28,4 +28,9 @@ public class OrderRepositoryImpl implements IOrderMethod {
     public void deleteById(Long id) {
         orderRepository.deleteById(id);
     }
+
+    @Override
+    public Optional<Order> findByCodeOperation(String codeOp) {
+        return orderRepository.findByCodeOperation(codeOp);
+    }
 }
