@@ -2,6 +2,7 @@ package com.playstore.orders.application;
 
 import com.playstore.orders.application.exception.OrderNotFoundException;
 import com.playstore.orders.infrastructure.dto.*;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,8 +37,8 @@ public class OrderUseCase implements IOrderInputPort {
     private IGameServicePort gameServ;
 
     @Override
+    @CircuitBreaker(name="games", fallbackMethod = "fallBackGetGameUser")
     public OrderDTO findOrderById(Long id) throws OrderNotFoundException {
-
         return orderMethod.findById(id).map(order -> {
             List<OrderItemDTO> orderItemDTOS = new ArrayList<>();
 
@@ -69,6 +70,7 @@ public class OrderUseCase implements IOrderInputPort {
     }
 
     @Override
+    @CircuitBreaker(name="games", fallbackMethod = "fallBackGetGameUser")
     public OrderDTO findOrderByCode(String codeOp) throws OrderNotFoundException {
         return orderMethod.findByCodeOperation(codeOp).map(order -> {
             List<OrderItemDTO> orderItemDTOS = new ArrayList<>();
@@ -102,6 +104,7 @@ public class OrderUseCase implements IOrderInputPort {
     }
 
     @Override
+    @CircuitBreaker(name="games-users", fallbackMethod = "fallBackGetGameUser")
     public OrderDTO createOrder(OrderRequestDTO orderReq) throws UserNotFoundException, GameNotFoundException {
         Long user_id = orderReq.getUser_id();
         List<OrderItemDTO> ordersItems = new ArrayList<>();
@@ -168,6 +171,18 @@ public class OrderUseCase implements IOrderInputPort {
         orderMethod.deleteById(id);
 
         return "Order deleted successfully";
+    }
+
+    public OrderDTO fallBackGetGameUser(Throwable throwable) {
+        return OrderDTO.builder()
+                .id(null)
+                .user_id(null)
+                .final_price(null)
+                .date_purchase(null)
+                .code_operation(null)
+                .enabled(false)
+                .ordersItems(null)
+                .build();
     }
 
 }
