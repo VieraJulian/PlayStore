@@ -11,7 +11,13 @@ public class CloudinaryConfig {
 
     @Bean
     public Cloudinary cloudinary() {
-        Dotenv dotenv = Dotenv.load();
-        return new Cloudinary(dotenv.get("CLOUDINARY_URL"));
+        String cloudinaryUrl = System.getenv("CLOUDINARY_URL");
+        if (cloudinaryUrl == null) {
+            Dotenv dotenv = Dotenv.configure()
+                    .directory("./games")
+                    .load();
+            cloudinaryUrl = dotenv.get("CLOUDINARY_URL");
+        }
+        return new Cloudinary(cloudinaryUrl);
     }
 }

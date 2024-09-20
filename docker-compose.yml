@@ -1,0 +1,100 @@
+services:
+  eureka-server:
+    container_name: eureka-server
+    image: eureka
+    build: eureka/
+    restart: always
+    ports:
+      - 8761:8761
+    networks:
+      - dockernetflix-network
+
+  config-server:
+    container_name: config-server
+    image: config-server
+    build: config-server/
+    restart: always
+    ports:
+      - 8888:8888
+    networks:
+      - dockernetflix-network
+    depends_on:
+      - eureka-server
+
+  api-gateway:
+    container_name: api-gateway
+    image: api-gateway
+    build: api-gateway/
+    restart: always
+    ports:
+      - 443:443
+    networks:
+      - dockernetflix-network
+    depends_on:
+      - eureka-server
+      - config-server
+
+  mysql-db:
+    container_name: mysql-db
+    image: mysql:8.2.0
+    restart: always
+    ports:
+      - 3306:3306
+    networks:
+      - dockernetflix-network
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=games_db,orders_db,users_db
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - mysql-data:/var/lib/mysql
+
+  games-service:
+    container_name: games-service
+    image: games-service
+    build: games/
+    restart: always
+    ports:
+      - 8000:8000
+    networks:
+      - dockernetflix-network
+    env_file:
+      - ./games/.env
+    depends_on:
+      - eureka-server
+      - config-server
+      - mysql-db
+
+  users-service:
+    container_name: users-service
+    image: users-service
+    build: users/
+    restart: always
+    ports:
+      - 8001:8001
+    networks:
+      - dockernetflix-network
+    depends_on:
+      - eureka-server
+      - config-server
+      - mysql-db
+
+  orders-service:
+    container_name: orders-service
+    image: orders-service
+    build: orders/
+    restart: always
+    ports:
+      - 8002:8002
+    networks:
+      - dockernetflix-network
+    depends_on:
+      - eureka-server
+      - config-server
+      - mysql-db
+
+networks:
+  dockernetflix-network:
+
+volumes:
+  mysql-data:
